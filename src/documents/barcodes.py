@@ -20,6 +20,7 @@ from documents.plugins.base import StopConsumeTaskError
 from documents.plugins.helpers import ProgressStatusOptions
 from documents.utils import copy_basic_file_stats
 from documents.utils import copy_file_with_basic_stats
+from documents.utils import maybe_override_pixel_limit
 
 logger = logging.getLogger("paperless.barcodes")
 
@@ -228,6 +229,7 @@ class BarcodePlugin(ConsumeTaskPlugin):
             logger.debug("Scanning for barcodes using ZXING")
 
         try:
+            maybe_override_pixel_limit(settings.OCR_MAX_IMAGE_PIXELS)
             pages_from_path = convert_from_path(
                 self.pdf_file,
                 dpi=settings.CONSUMER_BARCODE_DPI,

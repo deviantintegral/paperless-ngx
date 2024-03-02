@@ -12,6 +12,7 @@ from PIL import Image
 from documents.parsers import DocumentParser
 from documents.parsers import ParseError
 from documents.parsers import make_thumbnail_from_pdf
+from documents.utils import maybe_override_pixel_limit
 from paperless.config import OcrConfig
 from paperless.models import ArchiveFileChoices
 from paperless.models import CleanChoices
@@ -255,6 +256,8 @@ class RasterisedDocumentParser(DocumentParser):
             ocrmypdf_args["sidecar"] = sidecar_file
 
         if self.is_image(mime_type):
+            maybe_override_pixel_limit(self.settings.max_image_pixel)
+
             dpi = self.get_dpi(input_file)
             a4_dpi = self.calculate_a4_dpi(input_file)
 
@@ -293,20 +296,15 @@ class RasterisedDocumentParser(DocumentParser):
                     f"they will not be used. Error: {e}",
                 )
 
-        if self.settings.max_image_pixel is not None:
+        if (
+            self.settings.max_image_pixel is not None
+            and self.settings.max_image_pixel >= 0
+        ):
             # Convert pixels to mega-pixels and provide to ocrmypdf
             max_pixels_mpixels = self.settings.max_image_pixel / 1_000_000.0
-            if max_pixels_mpixels > 0:
-                self.log.debug(
-                    f"Calculated {max_pixels_mpixels} megapixels for OCR",
-                )
+            self.log.debug(f"Calculated {max_pixels_mpixels} megapixels for OCR")
 
-                ocrmypdf_args["max_image_mpixels"] = max_pixels_mpixels
-            else:
-                self.log.warning(
-                    "There is an issue with PAPERLESS_OCR_MAX_IMAGE_PIXELS, "
-                    "this value must be at least 1 megapixel if set",
-                )
+            ocrmypdf_args["max_image_mpixels"] = max_pixels_mpixels
 
         return ocrmypdf_args
 

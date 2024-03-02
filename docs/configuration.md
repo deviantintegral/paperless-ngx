@@ -772,12 +772,21 @@ but could result in missing text content.
         resources when consuming a file. Be sure you have sufficient system
         resources.
 
+    !!! note
+
+        This limit is applied to all image operations
+
     !!! warning
 
         The limit is intended to prevent malicious files from consuming
         system resources and causing crashes and other errors. Only increase
         this value if you are certain your documents are not malicious and
         you need the text which was not OCRed
+
+    !!! warning
+
+        Settings this value to 0 will disable to limit and may allow denial of service
+        against your installation.  Only set this to 0 with extreme caution.
 
 #### [`PAPERLESS_OCR_COLOR_CONVERSION_STRATEGY=<RGB>`](#PAPERLESS_OCR_COLOR_CONVERSION_STRATEGY) {#PAPERLESS_OCR_COLOR_CONVERSION_STRATEGY}
 

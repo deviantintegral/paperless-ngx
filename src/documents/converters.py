@@ -6,6 +6,7 @@ from django.conf import settings
 from PIL import Image
 
 from documents.utils import copy_basic_file_stats
+from documents.utils import maybe_override_pixel_limit
 
 
 def convert_from_tiff_to_pdf(tiff_path: Path, target_directory: Path) -> Path:
@@ -17,6 +18,8 @@ def convert_from_tiff_to_pdf(tiff_path: Path, target_directory: Path) -> Path:
 
     Returns the path of the PDF created.
     """
+    maybe_override_pixel_limit(settings.OCR_MAX_IMAGE_PIXELS)
+
     with Image.open(tiff_path) as im:
         has_alpha_layer = im.mode in ("RGBA", "LA")
     if has_alpha_layer:
@@ -41,6 +44,6 @@ def convert_from_tiff_to_pdf(tiff_path: Path, target_directory: Path) -> Path:
     with scratch_image.open("rb") as img_file, pdf_path.open("wb") as pdf_file:
         pdf_file.write(img2pdf.convert(img_file))
 
-    # Copy what file stat is possible
+    # Copy what file stats is possible
     copy_basic_file_stats(tiff_path, pdf_path)
     return pdf_path

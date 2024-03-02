@@ -1,7 +1,10 @@
 import shutil
 from os import utime
 from pathlib import Path
+from typing import Optional
 from typing import Union
+
+from PIL import Image
 
 
 def _coerce_to_path(
@@ -40,3 +43,14 @@ def copy_file_with_basic_stats(
 
     shutil.copy(source, dest)
     copy_basic_file_stats(source, dest)
+
+
+def maybe_override_pixel_limit(limit: Optional[Union[float, int]]) -> None:
+    """
+    Maybe overrides the PIL limit on pixel count
+    """
+    if limit is not None and limit >= 0:
+        pixel_count = limit
+        if pixel_count == 0:
+            pixel_count = None
+        Image.MAX_IMAGE_PIXELS = pixel_count
